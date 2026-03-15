@@ -14,4 +14,68 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\totalSystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\menu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_service.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_file.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_service.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\global.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\main.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\menu.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>
