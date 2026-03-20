@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\totalSystem.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.h">
       <Filter>头文件</Filter>
     </ClInclude>

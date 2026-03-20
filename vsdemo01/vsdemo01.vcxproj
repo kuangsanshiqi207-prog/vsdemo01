@@ -132,7 +132,6 @@
     <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.h" />
     <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.h" />
     <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\totalSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.c" />
