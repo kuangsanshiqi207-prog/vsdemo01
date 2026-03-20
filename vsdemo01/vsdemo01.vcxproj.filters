@@ -15,63 +15,60 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.h">
+    <ClInclude Include="billing_file.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_service.h">
+    <ClInclude Include="billing_service.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_file.h">
+    <ClInclude Include="card_file.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_service.h">
+    <ClInclude Include="card_service.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\global.h">
+    <ClInclude Include="global.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\menu.h">
+    <ClInclude Include="tool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.h">
+    <ClInclude Include="service.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.h">
+    <ClInclude Include="model.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.h">
+    <ClInclude Include="menu.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.c">
+    <ClCompile Include="billing_file.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_service.c">
+    <ClCompile Include="billing_service.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_file.c">
+    <ClCompile Include="card_file.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_service.c">
+    <ClCompile Include="card_service.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\global.c">
+    <ClCompile Include="global.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\main.c">
+    <ClCompile Include="main.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\menu.c">
+    <ClCompile Include="menu.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.c">
+    <ClCompile Include="model.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.c">
+    <ClCompile Include="service.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

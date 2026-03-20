@@ -123,27 +123,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_service.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_file.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_service.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\global.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\menu.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.h" />
-    <ClInclude Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.h" />
+    <ClInclude Include="billing_file.h" />
+    <ClInclude Include="billing_service.h" />
+    <ClInclude Include="card_file.h" />
+    <ClInclude Include="card_service.h" />
+    <ClInclude Include="global.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="model.h" />
+    <ClInclude Include="service.h" />
+    <ClInclude Include="tool.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_file.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\billing_service.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_file.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\card_service.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\global.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\main.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\menu.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\model.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\service.c" />
-    <ClCompile Include="..\..\..\..\c\vsdemo01\vsdemo01\vsdemo01\tool.c" />
+    <ClCompile Include="billing_file.c" />
+    <ClCompile Include="billing_service.c" />
+    <ClCompile Include="card_file.c" />
+    <ClCompile Include="card_service.c" />
+    <ClCompile Include="global.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="menu.c" />
+    <ClCompile Include="model.c" />
+    <ClCompile Include="service.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
