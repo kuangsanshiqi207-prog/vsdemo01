@@ -10,6 +10,8 @@
 #include<string.h>
 #include<time.h>
 
+
+
 void initSpace();
 void showMenu();
 void add();

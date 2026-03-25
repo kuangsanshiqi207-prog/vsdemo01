@@ -44,9 +44,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="billing_file.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="billing_service.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -69,6 +66,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="service.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="billing_file.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tool.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
