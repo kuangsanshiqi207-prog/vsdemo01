@@ -14,6 +14,7 @@ void addCard(Card* newCard);
 CardList* queryCard(char* name, int* flag);
 void copyCard(Card* dest, Card* src);
 void freeCard();
+Card* checkCard(const char* pName, const char* pPwd, int* pIndex);
 
 #endif // !CARD_SERVICE_H
 

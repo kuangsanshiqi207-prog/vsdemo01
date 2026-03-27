@@ -6,8 +6,8 @@
 #include<time.h>
 
 typedef struct Card {
-	char aName[18];    // 卡号
-	char aPwd[8];     // 密码
+	char aName[19];    // 卡号
+	char aPwd[9];     // 密码
 	int nStatus;   // 卡状态(0-未上机；1-正在上机；2-已注销；3-失效)
 	time_t tStart;     // 开卡时间
 	time_t tEnd;      // 卡的截止时间

@@ -40,6 +40,7 @@ int main()
 			case 3:				//上机
 			{
 				printf("上机\n");
+				login();
 				break;
 			}
 			case 4:				//下机

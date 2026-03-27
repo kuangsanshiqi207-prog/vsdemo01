@@ -1,9 +1,6 @@
 #include "menu.h"
 
-void initSpace()
-{
-    initCard();
-}
+
 
 /**
  * 显示菜单界面
@@ -25,6 +22,11 @@ void showMenu()
     printf("      0.退出系统\n");
     printf("--------------------\n");
     printf("请输入您的选择: (1-8)");
+}
+
+void initSpace()
+{
+    initCard();
 }
 
 void add()
@@ -86,7 +88,7 @@ void add()
 void query()
 {
     printf("------查询卡------\n");
-    char cardName[256] = { '\0'};
+    char cardName[256] = { '\0' };
     printf("请输入您的卡号:");
     fgets(cardName, sizeof(cardName), stdin);
     cardName[strcspn(cardName, "\n")] = '\0';
@@ -97,24 +99,53 @@ void query()
     }
 
     int flag = 0;
-    CardList* sercCard = queryCard(cardName,&flag);
-    CardList* p=NULL;
-    if(sercCard== NULL)
+    CardList* sercCard = queryCard(cardName, &flag);
+    CardList* p = NULL;
+    if (sercCard == NULL)
     {
         printf("卡号不存在,模糊匹配也不存在\n");
         return;
     }
 
+    char time[20];
+
     printf("------卡的信息如下所示------\n");
     printf("卡号\t状态\t余额\t累计使用\t使用次数\t上次上机时间\n");
-    while(sercCard!=NULL)
+    while (sercCard != NULL)
     {
+        format_time(time, 20, sercCard->card.tLast);
         p = sercCard;
-        printf("%s\t%d\t%f\t%f\t%d\t%lld\n", sercCard->card.aName, sercCard->card.nStatus, sercCard->card.fBalance, sercCard->card.fTotalUse, sercCard->card.nUseCount, sercCard->card.tLast);
+        printf("%s\t%d\t%f\t%f\t%d\t%s\n", sercCard->card.aName, sercCard->card.nStatus, sercCard->card.fBalance, sercCard->card.fTotalUse, sercCard->card.nUseCount, time);
         sercCard = sercCard->next;
         free(p);
     }
-    
+
+}
+
+void login()
+{
+    LogonInfo* logonInfo=(LogonInfo*)malloc(sizeof(LogonInfo));
+    char cardName[19] = "";
+    char password[9] = "";
+    printf("请输入上机卡号:<1-18>");
+    scanf("%s",cardName);
+    getchar();
+    printf("请输入上机密码<8>:");
+    scanf("%s", password);
+    getchar();
+    int nResult = doLogon(cardName,password, logonInfo);
+    char time[20]="";
+    format_time(time,20,logonInfo->tLogon);
+    switch (nResult)
+    {
+    case 0:printf("%s\n","上机失败"); break;
+    case 1:
+        printf("%s\n","上机成功");
+        printf("%s,%f,%s", logonInfo->aCardName, logonInfo->fBalance, time);
+        break;
+    case 2:printf("%s\n","卡不能使用"); break;
+    case 3:printf("%s\n","余额不足"); break;
+    }
 }
 
 void freespace()

@@ -2,21 +2,75 @@
 
 #define MAX_SIZE 50
 
+
+char path[100] = "E:\\homework\\cshiyan\\vsdemo01\\vsdemo01\\vsdemo01\\data.txt";
 // 全局变量
 CardList* cardlist;          // 带头结点的链表头指针
 int g_cardCount = 0;         // 当前卡片数量（用于容量限制）
 
 // 初始化链表，创建头结点
-void initCard()
-{
+void initCard() {
+    // 1. 创建头结点（虚拟头结点）
     CardList* dummy = (CardList*)malloc(sizeof(CardList));
     if (dummy == NULL) {
-        printf("空间不足，初始化失败\n");
+        printf("内存不足，初始化失败\n");
         return;
     }
-    dummy->next = NULL;       // 重要：头结点的 next 必须初始化为 NULL
+    dummy->next = NULL;
     cardlist = dummy;
-    g_cardCount = 0;          // 初始卡片数为 0
+
+    // 2. 获取文件中卡片数量
+    g_cardCount = getCardCount(path);
+    if (g_cardCount == 0) {
+        // 文件为空或不存在，链表仅有头结点
+        return;
+    }
+
+    // 3. 打开文件，逐行读取并构建链表
+    FILE* fp = fopen(path, "r");
+    if (fp == NULL) {
+        printf("无法打开卡片文件: %s\n", path);
+        return;
+    }
+
+    char line[256];
+    CardList* tail = dummy;   // 尾指针，用于 O(1) 插入
+    int actualCount = 0;
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        // 跳过空行
+        if (strlen(line) <= 1) {
+            continue;
+        }
+        // 去掉末尾换行符
+        line[strcspn(line, "\n")] = '\0';
+
+        // 利用已有的 parseCard 函数解析一行，得到 Card 结构体
+        Card card = parseCard(line);
+
+        // 创建新节点
+        CardList* newNode = (CardList*)malloc(sizeof(CardList));
+        if (newNode == NULL) {
+            printf("内存不足，创建节点失败\n");
+            break;
+        }
+        newNode->card = card;
+        newNode->next = NULL;
+
+        // 插入链表尾部
+        tail->next = newNode;
+        tail = newNode;
+        actualCount++;
+    }
+
+    fclose(fp);
+
+    // 4. 如果实际读取数量与计数不一致，更新 g_cardCount（可选）
+    if (actualCount != g_cardCount) {
+        g_cardCount = actualCount;
+        printf("警告: 文件实际卡片数量与计数不一致 (实际 %d，计数 %d)\n",
+            actualCount, g_cardCount);
+    }
 }
 
 // 添加卡片（插入到链表尾部）
@@ -48,14 +102,11 @@ void addCard(Card* newCard)
     }
     tail->next = newNode;     // 将新节点链接到末尾
 
+    saveCard(newNode,path);
     g_cardCount++;            // 卡片数增加
 }
 
-// 查询卡片：
-//   精确匹配：返回包含该卡片拷贝的单节点链表，*flag = 1
-//   模糊匹配：返回所有包含子串的卡片组成的链表（按原顺序），*flag = 0
-//   无匹配：返回 NULL，*flag = -1
-//   注意：返回的链表需要调用者使用 freeQueryResult() 释放（或手动遍历释放）
+
 CardList* queryCard(char* name, int* flag)
 {
     if (name == NULL) {
@@ -173,4 +224,38 @@ void freeQueryResult(CardList* result)
         free(result);
         result = next;
     }
+}
+
+Card* checkCard(const char* name, const char* pPwd, int* pIndex)
+{
+    CardList* curr = cardlist->next;   // 跳过表头
+    CardList* result = (CardList*)malloc(sizeof(CardList));
+    if (result == NULL) {
+        *pIndex = -1;
+        return NULL;
+    }
+    while (curr != NULL) {
+        *pIndex+=1;
+        if (strcmp(curr->card.aName, name) == 0) {
+           
+            copyCard(&result->card, &curr->card);
+            result->next = NULL;
+            break;
+        }
+        curr = curr->next;
+    }
+    if (!strcmp(result->card.aPwd, pPwd) == 0)
+    {
+        return NULL;
+    }
+    if (result->card.nStatus != 0 || result->card.fBalance <= 0)
+    {
+        return NULL;
+    }
+    result->card.nStatus = 1;
+
+    copyCard(&curr->card,&result->card);
+
+    updateCard(&result->card,path,*pIndex);
+    return result;
 }

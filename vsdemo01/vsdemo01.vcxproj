@@ -130,6 +130,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="service.h" />
     <ClInclude Include="tool.h" />
   </ItemGroup>
@@ -144,6 +145,9 @@
     <ClCompile Include="model.c" />
     <ClCompile Include="service.c" />
     <ClCompile Include="tool.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="userdata.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

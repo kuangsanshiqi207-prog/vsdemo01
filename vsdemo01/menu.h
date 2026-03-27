@@ -11,11 +11,11 @@
 #include<time.h>
 
 
-
-void initSpace();
 void showMenu();
+void initSpace();
 void add();
 void query();
 void freespace();
+void login();
 
 #endif // !MENU_H
