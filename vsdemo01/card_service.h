@@ -8,13 +8,14 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#include"global.h"
 
 void initCard();
-void addCard(Card* newCard);
+int addCard(Card* newCard);
 CardList* queryCard(char* name, int* flag);
 void copyCard(Card* dest, Card* src);
 void freeCard();
-Card* checkCard(const char* pName, const char* pPwd, int* pIndex);
+Card* checkAndUpdateCard(const char* pName, const char* pPwd, int* pIndex);
 
 #endif // !CARD_SERVICE_H
 

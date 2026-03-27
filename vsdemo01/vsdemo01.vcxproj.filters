@@ -45,9 +45,6 @@
     <ClInclude Include="menu.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="billing_service.c">
@@ -80,10 +77,5 @@
     <ClCompile Include="tool.c">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="userdata.txt">
-      <Filter>资源文件\Data</Filter>
-    </Text>
   </ItemGroup>
 </Project>

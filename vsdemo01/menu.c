@@ -79,7 +79,11 @@ void add()
     printf("卡号: %s\n", newCard->aName);
     printf("密码: %s\n", newCard->aPwd);
     printf("余额: %f\n\n", newCard->fBalance);
-    addCard(newCard);
+    
+    if (addCard(newCard))
+    {
+        printf("添加卡失败\n");
+    }
 
     free(newCard);
 }
@@ -136,16 +140,19 @@ void login()
     int nResult = doLogon(cardName,password, logonInfo);
     char time[20]="";
     format_time(time,20,logonInfo->tLogon);
+    printf("----上机结果----");
     switch (nResult)
     {
     case 0:printf("%s\n","上机失败"); break;
     case 1:
+        printf("%8s %8s %8s","卡号","余额","上机时间");
         printf("%s\n","上机成功");
-        printf("%s,%f,%s", logonInfo->aCardName, logonInfo->fBalance, time);
+        printf("%s,%f,%s\n", logonInfo->aCardName, logonInfo->fBalance, time);
         break;
     case 2:printf("%s\n","卡不能使用"); break;
     case 3:printf("%s\n","余额不足"); break;
     }
+    free(logonInfo);
 }
 
 void freespace()

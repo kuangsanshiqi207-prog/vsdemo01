@@ -1,9 +1,6 @@
 #include "card_service.h"
 
-#define MAX_SIZE 50
 
-
-char path[100] = "E:\\homework\\cshiyan\\vsdemo01\\vsdemo01\\vsdemo01\\data.txt";
 // 全局变量
 CardList* cardlist;          // 带头结点的链表头指针
 int g_cardCount = 0;         // 当前卡片数量（用于容量限制）
@@ -20,16 +17,16 @@ void initCard() {
     cardlist = dummy;
 
     // 2. 获取文件中卡片数量
-    g_cardCount = getCardCount(path);
+    g_cardCount = getCardCount(userpath);
     if (g_cardCount == 0) {
         // 文件为空或不存在，链表仅有头结点
         return;
     }
 
     // 3. 打开文件，逐行读取并构建链表
-    FILE* fp = fopen(path, "r");
+    FILE* fp = fopen(userpath, "r");
     if (fp == NULL) {
-        printf("无法打开卡片文件: %s\n", path);
+        printf("无法打开卡片文件: %s\n", userpath);
         return;
     }
 
@@ -74,23 +71,32 @@ void initCard() {
 }
 
 // 添加卡片（插入到链表尾部）
-void addCard(Card* newCard)
+int addCard(Card* newCard)
 {
     if (newCard == NULL) {
-        return;
+        return 0;
+    }
+
+    int flag = 0;
+    queryCard(newCard->aName, &flag);
+
+    if (flag == 1)
+    {
+        return 0;
     }
 
     // 容量检查
     if (g_cardCount >= MAX_SIZE) {
         fprintf(stderr, "addCard: card storage full (MAX_SIZE=%d)\n", MAX_SIZE);
-        return;
+        return 0;
     }
+
 
     // 创建新节点
     CardList* newNode = (CardList*)malloc(sizeof(CardList));
     if (newNode == NULL) {
         printf("空间不足\n");
-        return;
+        return 0;
     }
     copyCard(&newNode->card, newCard);
     newNode->next = NULL;
@@ -102,8 +108,9 @@ void addCard(Card* newCard)
     }
     tail->next = newNode;     // 将新节点链接到末尾
 
-    saveCard(newNode,path);
+    saveCard(newNode, userpath);
     g_cardCount++;            // 卡片数增加
+    return 1;
 }
 
 
@@ -226,23 +233,28 @@ void freeQueryResult(CardList* result)
     }
 }
 
-Card* checkCard(const char* name, const char* pPwd, int* pIndex)
+Card* checkAndUpdateCard(const char* name, const char* pPwd, int* pIndex)
 {
     CardList* curr = cardlist->next;   // 跳过表头
-    CardList* result = (CardList*)malloc(sizeof(CardList));
-    if (result == NULL) {
-        *pIndex = -1;
-        return NULL;
-    }
+    CardList* result = NULL;
     while (curr != NULL) {
         *pIndex+=1;
         if (strcmp(curr->card.aName, name) == 0) {
            
+            result = (CardList*)malloc(sizeof(CardList));
+            if (result == NULL) {
+                *pIndex = -1;
+                return NULL;
+            }
             copyCard(&result->card, &curr->card);
             result->next = NULL;
             break;
         }
         curr = curr->next;
+    }
+    if (curr == NULL)
+    {
+        return NULL;
     }
     if (!strcmp(result->card.aPwd, pPwd) == 0)
     {
@@ -253,9 +265,7 @@ Card* checkCard(const char* name, const char* pPwd, int* pIndex)
         return NULL;
     }
     result->card.nStatus = 1;
-
-    copyCard(&curr->card,&result->card);
-
-    updateCard(&result->card,path,*pIndex);
+    copyCard(&curr->card, &result->card);
+    updateCard(&result->card, userpath,*pIndex);
     return result;
 }
