@@ -32,6 +32,12 @@ typedef struct Billing {
 	int nDel;              // 删除标识，0-未删除,1-删除
 }Billing;
 
+
+typedef struct BillingList {
+	Billing billing;
+	struct BillingList* next;
+} BillingList;
+
 typedef struct LogonInfo {
 	char aCardName[18];    // 上机卡号
 	time_t tLogon;         // 上机时间

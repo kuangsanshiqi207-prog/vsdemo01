@@ -17,5 +17,6 @@ void add();
 void query();
 void freespace();
 void login();
+void settle();
 
 #endif // !MENU_H

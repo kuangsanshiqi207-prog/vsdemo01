@@ -2,6 +2,14 @@
 #include<stdbool.h>
 #include"menu.h"
 
+//int main() {
+//    BillingList* dummy = (BillingList*)malloc(sizeof(BillingList));
+//    if (dummy) {
+//        dummy->next = NULL;   // 这一行还崩溃吗？
+//    }
+//    initBillingList();
+//    return 0;
+//}
 
 /**
 * 计费管理系统主函数
@@ -46,6 +54,7 @@ int main()
 			case 4:				//下机
 			{
 				printf("下机\n");
+				settle();
 				break;
 			}
 			case 5:				//充值

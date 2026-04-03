@@ -27,6 +27,7 @@ void showMenu()
 void initSpace()
 {
     initCard();
+    initBillingList();
 }
 
 void add()
@@ -75,14 +76,17 @@ void add()
     printf("请输入余额: <RMB>");
     scanf("%f", &newCard->fBalance);
     getchar();
-    printf("------添加卡的信息如下所示------\n");
-    printf("卡号: %s\n", newCard->aName);
-    printf("密码: %s\n", newCard->aPwd);
-    printf("余额: %f\n\n", newCard->fBalance);
     
-    if (addCard(newCard))
+    if (!addCard(newCard))
     {
         printf("添加卡失败\n");
+    }
+    else
+    {
+        printf("------添加卡的信息如下所示------\n");
+        printf("卡号: %s\n", newCard->aName);
+        printf("密码: %s\n", newCard->aPwd);
+        printf("余额: %f\n\n", newCard->fBalance);
     }
 
     free(newCard);
@@ -145,8 +149,8 @@ void login()
     {
     case 0:printf("%s\n","上机失败"); break;
     case 1:
-        printf("%8s %8s %8s","卡号","余额","上机时间");
-        printf("%s\n","上机成功");
+        printf("%s\n", "上机成功");
+        printf("%8s %8s %8s","卡号","余额","上机时间\n");
         printf("%s,%f,%s\n", logonInfo->aCardName, logonInfo->fBalance, time);
         break;
     case 2:printf("%s\n","卡不能使用"); break;
@@ -155,7 +159,54 @@ void login()
     free(logonInfo);
 }
 
+
+// 在 menu.c 中添加
+
+void settle() {
+    printf("------下机------\n");
+    char cardName[19] = { 0 };
+    char password[9] = { 0 };
+
+    printf("请输入下机卡号 (1-18位): ");
+    scanf("%18s", cardName);
+    getchar();
+
+    printf("请输入密码 (8位): ");
+    scanf("%8s", password);
+    getchar();
+
+    SettleInfo info = { 0 };
+    int result = doSettle(cardName, password, &info);
+
+    char startTime[20], endTime[20];
+    format_time(startTime, sizeof(startTime), info.tStart);
+    format_time(endTime, sizeof(endTime), info.tEnd);
+
+    switch (result) {
+    case TRUE:
+        printf("下机成功！\n");
+        printf("卡号\t消费金额\t余额\t\t上机时间\t\t下机时间\n");
+        printf("%s\t%.2f\t\t%.2f\t\t%s\t%s\n",
+            info.aCardName, info.fAmount, info.fBalance,
+            startTime, endTime);
+        break;
+    case FALSE:
+        printf("下机失败：卡号或密码错误，或该卡未处于上机状态。\n");
+        break;
+    case UNUSE:
+        printf("下机失败：卡状态不允许下机（可能已注销或未上机）。\n");
+        break;
+    case ENOUGHMONEY:
+        printf("下机失败：余额不足，请充值后再下机。\n");
+        break;
+    default:
+        printf("下机失败：未知错误。\n");
+        break;
+    }
+}
+
 void freespace()
 {
     freeCard();
+    releaseBillingList();
 }

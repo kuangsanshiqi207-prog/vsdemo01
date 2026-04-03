@@ -5,6 +5,7 @@
 #include"model.h"
 #include"tool.h"
 #include"global.h"
+#include<string.h>
 
 int saveCard(const CardList* head, const char* path);
 int getCardCount(const char* pPath);

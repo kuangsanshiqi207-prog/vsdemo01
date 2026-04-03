@@ -267,5 +267,42 @@ Card* checkAndUpdateCard(const char* name, const char* pPwd, int* pIndex)
     result->card.nStatus = 1;
     copyCard(&curr->card, &result->card);
     updateCard(&result->card, userpath,*pIndex);
-    return result;
+    return &result->card;
+}
+
+// 在 card_service.c 末尾添加
+
+CardList* findCardForSettle(const char* name, const char* pwd, int* pIndex) {
+    if (name == NULL || pwd == NULL) return NULL;
+    CardList* curr = cardlist->next;
+    int idx = 1;
+    while (curr != NULL) {
+        if (strcmp(curr->card.aName, name) == 0) {
+            // 检查密码
+            if (strcmp(curr->card.aPwd, pwd) != 0) {
+                if (pIndex) *pIndex = -1;
+                return NULL;
+            }
+            // 检查状态是否为正在上机、未删除、未失效、余额大于0、未过期
+            if (curr->card.nStatus != 1 || curr->card.nDel != 0) {
+                if (pIndex) *pIndex = -2;   // 状态不允许下机
+                return NULL;
+            }
+            if (curr->card.fBalance <= 0) {
+                if (pIndex) *pIndex = -3;   // 余额不足（下机时还会再算）
+                return NULL;
+            }
+            // 检查有效期
+            time_t now = time(NULL);
+            if (now > curr->card.tEnd) {
+                if (pIndex) *pIndex = -4;   // 卡已过期
+                return NULL;
+            }
+            if (pIndex) *pIndex = idx;
+            return curr;   // 返回链表中的节点指针
+        }
+        idx++;
+        curr = curr->next;
+    }
+    return NULL;
 }
