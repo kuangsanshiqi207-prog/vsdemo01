@@ -4,11 +4,20 @@
 int doLogon(const char* pName, const char* pPwd, LogonInfo* pInfo)
 {
     int ind = 0;
-    Card* card=checkAndUpdateCard(pName, pPwd, &ind);
+    Card* card=checkCard(pName, pPwd, &ind);
     if (card == NULL)
     {
         return FALSE;
     }
+    if (card->nStatus != 0)
+    {
+        return UNUSE;
+    }
+    if(card->fBalance <= 0)
+    {
+        return ENOUGHMONEY;
+    }
+    card->nStatus = 1;
 
     strcpy(pInfo->aCardName , card->aName);
     pInfo->fBalance = card->fBalance;
@@ -88,7 +97,7 @@ int doSettle(const char* pName, const char* pPwd, SettleInfo* pInfo) {
     updatedCard.nStatus = 0;   // 改为未上机
 
     // 更新文件中的卡信息
-    if (updateCard(&updatedCard, userpath, cardIndex) == FALSE) {
+    if (updateCard(&updatedCard, cardIndex) == FALSE) {
         return FALSE;
     }
     // 同步更新链表中的节点
@@ -100,7 +109,7 @@ int doSettle(const char* pName, const char* pPwd, SettleInfo* pInfo) {
     updatedBilling.fAmount = (float)amount;
     updatedBilling.nStatus = 1;   // 已结算
     if (updateBilling(&updatedBilling, billingpath, billingIndex) == FALSE) {
-        // 注意：卡信息已经更新，这里如果计费更新失败可能需要回滚，简单处理返回失败
+        // 注意:卡信息已经更新，这里如果计费更新失败可能需要回滚，简单处理返回失败
         // 实际可考虑回滚，但为简化先返回失败
         return FALSE;
     }
@@ -113,6 +122,149 @@ int doSettle(const char* pName, const char* pPwd, SettleInfo* pInfo) {
     pInfo->tEnd = now;
     pInfo->fAmount = (float)amount;
     pInfo->fBalance = updatedCard.fBalance;
+
+    return TRUE;
+}
+
+int doAddMoney(const char* pName, const char* pPwd, Money* money)
+{
+    if (pName == NULL || pPwd == NULL || money->fMoney <= 0 ) {
+        return FALSE;
+    }
+
+    int index = 0;
+    Card* pCard  = checkCard(pName, pPwd, &index);
+    if (pCard == NULL) {
+        return FALSE;  // 卡号密码错误
+    }
+    
+    // 检查卡状态:只有未上机(0)或正在上机(1)可以充值（未注销且未失效）
+    if (pCard->nStatus == 2 || pCard->nStatus == 3) {
+        return FALSE;  // 已注销或失效
+    }
+
+    // 更新余额
+    float oldBalance = pCard->fBalance;
+    pCard->fBalance += money->fMoney;
+
+    // 更新文件中的卡信息
+    if (updateCard(pCard, index) == FALSE) {
+        // 回滚内存中的余额
+        pCard->fBalance = oldBalance;
+        return FALSE;
+    }
+
+
+    // 保存充值记录
+    Money moneyRecord = { 0 };
+    strcpy(moneyRecord.aCardName, pCard->aName);
+    moneyRecord.tTime = time(NULL);
+    moneyRecord.nStatus = 0;   // 0-充值
+    moneyRecord.fMoney = money->fMoney;
+    moneyRecord.nDel = 0;
+    if (addMoney(&moneyRecord) == FALSE) {
+        // 记录保存失败不影响充值结果，但可以打印日志（略）
+    }
+
+    // 填充返回信息
+    strcpy(money->aCardName, pCard->aName);
+    money->tTime = moneyRecord.tTime;
+    money->nStatus = 0;
+    money->fMoney = pCard->fBalance;
+
+    return TRUE;
+}
+
+// 退费（退还全部余额，卡余额清零，卡状态不变）
+int doRefundMoney(const char* pName, const char* pPwd, Money* pMoneyInfo) 
+{
+    if (pName == NULL || pPwd == NULL || pMoneyInfo == NULL) {
+        return FALSE;
+    }
+
+    int index = 0;
+    Card* pCard = checkCard(pName, pPwd, &index);
+    if (pCard == NULL) {
+        return FALSE;  // 卡号密码错误
+    }
+
+    // 退费条件:未上机(0) 且 余额大于0
+    if (pCard->nStatus != 0 || pCard->fBalance <= 0) {
+        return FALSE;
+    }
+
+    float refundAmount = pCard->fBalance;
+    // 清零余额
+    pCard->fBalance = 0.0f;
+
+    // 更新文件
+    if (updateCard(pCard, index) == FALSE) {
+        // 回滚
+        pCard->fBalance = refundAmount;
+        return FALSE;
+    }
+
+    // 保存退费记录
+    Money moneyRecord = { 0 };
+    strcpy(moneyRecord.aCardName, pCard->aName);
+    moneyRecord.tTime = time(NULL);
+    moneyRecord.nStatus = 1;   // 1-退费
+    moneyRecord.fMoney = refundAmount;
+    moneyRecord.nDel = 0;
+    addMoney(&moneyRecord);
+
+    // 填充返回信息
+    strcpy(pMoneyInfo->aCardName, pCard->aName);
+    pMoneyInfo->tTime = moneyRecord.tTime;
+    pMoneyInfo->nStatus = 1;
+    pMoneyInfo->fMoney = refundAmount;
+
+    return TRUE;
+}
+
+int doCancelCard(const char* pName, const char* pPwd, Money* pMoneyInfo) {
+    if (pName == NULL || pPwd == NULL || pMoneyInfo == NULL) {
+        return FALSE;
+    }
+
+    int index = 0;
+    Card* pCard = checkCard(pName, pPwd, &index);
+    if (pCard == NULL) {
+        return FALSE;  // 卡号密码错误
+    }
+
+    // 注销条件:未上机(0) 且 未注销(状态!=2)
+    if (pCard->nStatus != 0) {
+        return FALSE;
+    }
+
+    float refundAmount = pCard->fBalance;
+    // 修改卡状态为已注销(2)，余额清零
+    pCard->nStatus = 2;
+    pCard->fBalance = 0.0f;
+
+    // 更新文件
+    if (updateCard(pCard, index) == FALSE) {
+        // 回滚
+        pCard->nStatus = 0;
+        pCard->fBalance = refundAmount;
+        return FALSE;
+    }
+
+    // 保存退费记录（注销也算退费，记录在money.ams中）
+    Money moneyRecord = { 0 };
+    strcpy(moneyRecord.aCardName, pCard->aName);
+    moneyRecord.tTime = time(NULL);
+    moneyRecord.nStatus = 1;   // 退费类型
+    moneyRecord.fMoney = refundAmount;
+    moneyRecord.nDel = 0;
+    addMoney(&moneyRecord);
+
+    // 填充返回信息
+    strcpy(pMoneyInfo->aCardName, pCard->aName);
+    pMoneyInfo->tTime = moneyRecord.tTime;
+    pMoneyInfo->nStatus = 1;
+    pMoneyInfo->fMoney = refundAmount;
 
     return TRUE;
 }

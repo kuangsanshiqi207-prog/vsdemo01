@@ -13,7 +13,7 @@ int InitBilling(Billing* billing)
 // 在 billing_service.c 开头添加全局变量
 BillingList* billinglist = NULL;   // 带头结点的链表
 
-//初始化计费链表：从文件读取所有记录构建链表
+//初始化计费链表:从文件读取所有记录构建链表
 void initBillingList() {
     // 创建头结点
     BillingList* dummy = (BillingList*)malloc(sizeof(BillingList));

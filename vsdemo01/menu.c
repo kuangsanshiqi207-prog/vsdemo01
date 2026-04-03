@@ -144,7 +144,7 @@ void login()
     int nResult = doLogon(cardName,password, logonInfo);
     char time[20]="";
     format_time(time,20,logonInfo->tLogon);
-    printf("----上机结果----");
+    printf("----上机结果----\n");
     switch (nResult)
     {
     case 0:printf("%s\n","上机失败"); break;
@@ -191,17 +191,117 @@ void settle() {
             startTime, endTime);
         break;
     case FALSE:
-        printf("下机失败：卡号或密码错误，或该卡未处于上机状态。\n");
+        printf("下机失败:卡号或密码错误，或该卡未处于上机状态。\n");
         break;
     case UNUSE:
-        printf("下机失败：卡状态不允许下机（可能已注销或未上机）。\n");
+        printf("下机失败:卡状态不允许下机（可能已注销或未上机）。\n");
         break;
     case ENOUGHMONEY:
-        printf("下机失败：余额不足，请充值后再下机。\n");
+        printf("下机失败:余额不足，请充值后再下机。\n");
         break;
     default:
-        printf("下机失败：未知错误。\n");
+        printf("下机失败:未知错误。\n");
         break;
+    }
+}
+
+void rechange()
+{
+    printf("------充值------\n");
+    char cardName[19] = { 0 };
+    char password[9] = { 0 };
+
+    printf("请输入充值卡号 (1-18位): ");
+    scanf("%18s", cardName);
+    getchar();
+
+    printf("请输入密码 (8位): ");
+    scanf("%8s", password);
+    getchar();
+
+    Money money = { 0 };
+
+    printf("请输入充值金额: ");
+    scanf("%f", &money.fMoney);
+    getchar();
+
+    int result = doAddMoney(cardName,password,&money);
+
+    char rechangeTime[20];
+    format_time(rechangeTime, sizeof(rechangeTime), money.tTime);
+
+
+    switch (result) {
+    case TRUE:
+        printf("充值成功！\n");
+        printf("------卡的信息如下所示------\n");
+        printf("卡号\t余额\t\t充值时间\n");
+        printf("%s\t%.2f\t\t%s\n",
+           money.aCardName,money.fMoney,rechangeTime);
+        break;
+    case FALSE:
+        printf("充值失败:卡号或密码错误。\n");
+        break;
+    case ENOUGHMONEY:
+        printf("充值失败:余额不能为零。\n");
+        break;
+    default:
+        printf("充值失败:未知错误。\n");
+        break;
+    }
+}
+
+
+void refundMoney()
+{
+    printf("------退费------\n");
+    char cardName[19] = { 0 };
+    char password[9] = { 0 };
+
+    printf("请输入卡号 (1-18位): ");
+    scanf("%18s", cardName);
+    getchar();
+
+    printf("请输入密码 (8位): ");
+    scanf("%8s", password);
+    getchar();
+
+    Money moneyInfo = { 0 };
+    int result = doRefundMoney(cardName, password, &moneyInfo);
+
+    if (result == TRUE) {
+        printf("退费成功！\n");
+        printf("卡号\t\t退费金额\t余额\n");
+        printf("%s\t\t%.2f\t\t0.00\n", cardName, moneyInfo.fMoney);
+    }
+    else {
+        printf("退费失败！请检查卡号密码或卡状态（非未上机/余额为0）\n");
+    }
+}
+void cancelCard()
+{
+    printf("------注销卡------\n");
+    char cardName[19] = { 0 };
+    char password[9] = { 0 };
+
+    printf("请输入卡号 (1-18位): ");
+    scanf("%18s", cardName);
+    getchar();
+
+    printf("请输入密码 (8位): ");
+    scanf("%8s", password);
+    getchar();
+
+    Money moneyInfo = { 0 };
+    int result = doCancelCard(cardName, password, &moneyInfo);
+
+    if (result == TRUE) {
+        printf("注销成功！\n");
+        printf("卡号\t\t退款金额\n");
+        printf("%s\t\t%.2f\n", cardName, moneyInfo.fMoney);
+    }
+    else {
+        printf("注销失败！请检查卡号密码或卡未处于未上机状态\n");
     }
 }
 

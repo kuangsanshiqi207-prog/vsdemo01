@@ -45,6 +45,12 @@
     <ClInclude Include="menu.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="money_file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="money_service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="billing_service.c">
@@ -75,6 +81,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="tool.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="money_file.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="money_service.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

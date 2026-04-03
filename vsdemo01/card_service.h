@@ -15,8 +15,9 @@ int addCard(Card* newCard);
 CardList* queryCard(char* name, int* flag);
 void copyCard(Card* dest, Card* src);
 void freeCard();
-Card* checkAndUpdateCard(const char* pName, const char* pPwd, int* pIndex);
+Card* checkCard(const char* pName, const char* pPwd, int* pIndex);
 CardList* findCardForSettle(const char* name, const char* pwd, int* pIndex);
+int updateCard(Card* card, int index);
 
 #endif // !CARD_SERVICE_H
 

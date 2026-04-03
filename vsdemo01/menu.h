@@ -18,5 +18,8 @@ void query();
 void freespace();
 void login();
 void settle();
+void rechange();
+void refundMoney();  
+void cancelCard();  
 
 #endif // !MENU_H

@@ -19,7 +19,7 @@
 }
 
 
-// 辅助函数：将时间字符串转换为 time_t
+// 辅助函数:将时间字符串转换为 time_t
  time_t parse_time(const char* time_str) {
     struct tm tm = { 0 };
     // 使用 sscanf 解析时间字符串

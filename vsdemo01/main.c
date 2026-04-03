@@ -60,11 +60,13 @@ int main()
 			case 5:				//充值
 			{
 				printf("充值\n");
+				rechange();
 				break;
 			}
 			case 6:				//退费
 			{
 				printf("退费\n");
+				refundMoney();
 				break;
 			}
 			case 7:				//查询统计
@@ -75,6 +77,7 @@ int main()
 			case 8:				//注销卡
 			{
 				printf("注销卡\n");
+				cancelCard();
 				break;
 			}
 			case 0:

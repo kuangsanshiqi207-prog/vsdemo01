@@ -16,6 +16,7 @@
 
 extern char userpath[100];
 extern char billingpath[100];
+extern char moneypath[100];
 
 #endif // !GLOBAL_H
 

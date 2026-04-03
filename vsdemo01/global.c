@@ -1,4 +1,6 @@
 #include"global.h"
 
-char userpath[100] = "E:\\homework\\cshiyan\\vsdemo01\\vsdemo01\\vsdemo01\\userdata.txt";
-char billingpath[100] = "E:\\homework\\cshiyan\\vsdemo01\\vsdemo01\\vsdemo01\\billingdata.ams";
+// global.c
+char userpath[100] = ".\\userdata.bin";
+char billingpath[100] = ".\\billingdata.ams";
+char moneypath[100]=".\\moneydata.bin";

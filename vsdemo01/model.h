@@ -55,7 +55,7 @@ typedef struct SettleInfo {
 typedef struct Money {
 	char aCardName[18];  // 卡号
 	time_t tTime;        // 充值退费的时间
-	int nStatus;      // 状态：0-表示充值；1-表示退费
+	int nStatus;      // 状态:0-表示充值；1-表示退费
 	float fMoney;       // 充值退费金额
 	int nDel;         // 删除标识，0-未删除,1-删除
 }Money;
