@@ -527,3 +527,90 @@ void freespace()
     freeCard();
     releaseBillingList();
 }
+
+#include "admin_service.h"
+
+void adminManagementMenu() {
+    int choice;
+    do {
+        printf("\n====== 管理员管理 ======\n");
+        printf("1. 添加管理员\n");
+        printf("2. 删除管理员\n");
+        printf("3. 修改管理员权限\n");
+        printf("4. 查看所有管理员\n");
+        printf("0. 返回上级菜单\n");
+        printf("请选择: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+        case 1: {
+            char username[32], password[32];
+            int role;
+            printf("请输入用户名: ");
+            scanf("%31s", username);
+            printf("请输入密码: ");
+            scanf("%31s", password);
+            printf("选择角色 (0-超级管理员, 1-普通管理员): ");
+            scanf("%d", &role);
+            getchar();
+            if (addAdmin(username, password, role)) {
+                printf("添加成功！\n");
+            }
+            else {
+                printf("添加失败，用户名可能已存在。\n");
+            }
+            break;
+        }
+        case 2: {
+            char username[32];
+            printf("请输入要删除的管理员用户名: ");
+            scanf("%31s", username);
+            if (deleteAdmin(username)) {
+                printf("删除成功！\n");
+            }
+            else {
+                printf("删除失败，不能删除自己或用户不存在。\n");
+            }
+            break;
+        }
+        case 3: {
+            char username[32];
+            int newRole;
+            printf("请输入要修改权限的管理员用户名: ");
+            scanf("%31s", username);
+            printf("新角色 (0-超级管理员, 1-普通管理员): ");
+            scanf("%d", &newRole);
+            getchar();
+            if (modifyAdminRole(username, newRole)) {
+                printf("修改成功！\n");
+            }
+            else {
+                printf("修改失败，不能修改自己的权限或用户不存在。\n");
+            }
+            break;
+        }
+        case 4: {
+            AdminList* admins = findAllAdmins();
+            if (admins == NULL) {
+                printf("没有找到任何管理员。\n");
+            }
+            else {
+                printf("用户名\t\t角色\n");
+                AdminList* p = admins;
+                while (p != NULL) {
+                    printf("%s\t\t%s\n", p->admin.username,
+                        p->admin.role == 0 ? "超级管理员" : "普通管理员");
+                    p = p->next;
+                }
+                freeAdminListResult(admins);
+            }
+            break;
+        }
+        case 0:
+            break;
+        default:
+            printf("无效选择。\n");
+        }
+    } while (choice != 0);
+}

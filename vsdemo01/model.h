@@ -60,6 +60,17 @@ typedef struct Money {
 	int nDel;         // 删除标识，0-未删除,1-删除
 }Money;
 
+// 管理员结构体
+typedef struct Admin {
+	char username[32];   // 用户名
+	char password[32];   // 密码（实际应加密，此处简化）
+	int role;            // 角色: 0-超级管理员, 1-普通管理员
+	int nDel;            // 删除标识 0-未删除, 1-已删除
+} Admin;
 
+typedef struct AdminList {
+	Admin admin;
+	struct AdminList* next;
+} AdminList;
 
 #endif // !MODEL_H

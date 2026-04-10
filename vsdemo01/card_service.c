@@ -48,8 +48,11 @@ int addCard(Card* newCard) {
     if (newCard == NULL) return 0;
 
     int flag = 0;
-    queryCard(newCard->aName, &flag);
-    if (flag == 1) return 0;   // 卡号已存在
+    CardList* existList = queryCard(newCard->aName, &flag);
+    if (existList != NULL) {
+        freeQueryResult(existList);   // 释放所有匹配节点
+        if (flag == 1) return 0;
+    }
 
     if (g_cardCount >= MAX_SIZE) {
         fprintf(stderr, "addCard: card storage full (MAX_SIZE=%d)\n", MAX_SIZE);

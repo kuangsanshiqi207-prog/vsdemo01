@@ -124,6 +124,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="admin_file.h" />
+    <ClInclude Include="admin_service.h" />
     <ClInclude Include="billing_file.h" />
     <ClInclude Include="billing_service.h" />
     <ClInclude Include="card_file.h" />
@@ -138,6 +140,8 @@
     <ClInclude Include="tool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="admin_file.c" />
+    <ClCompile Include="admin_service.c" />
     <ClCompile Include="billing_file.c" />
     <ClCompile Include="billing_service.c" />
     <ClCompile Include="card_file.c" />

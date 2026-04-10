@@ -20,7 +20,6 @@ double getTotalTurnover(time_t start, time_t end);
 int getMonthlyTurnover(int year, double monthlyTurnover[12]);
 int getCashFlow(time_t start, time_t end, double* totalRecharge, double* totalRefund);
 int exportStatisticsToFile(const char* filename, const char* content);
-int adminLogin(const char* username, const char* password);
 
 
 #endif // !SERVICE_H

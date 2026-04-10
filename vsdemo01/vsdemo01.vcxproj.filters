@@ -54,6 +54,12 @@
     <ClInclude Include="config.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="admin_file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="admin_service.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="billing_service.c">
@@ -93,6 +99,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="config.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="admin_file.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="admin_service.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

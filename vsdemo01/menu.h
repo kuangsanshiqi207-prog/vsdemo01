@@ -9,6 +9,7 @@
 #include"model.h"
 #include<string.h>
 #include<time.h>
+#include "admin_service.h"
 
 
 void showMenu();
@@ -24,5 +25,7 @@ void cancelCard();
 void statistics();
 void manageConfig();
 void restoreCardMenu();
+void adminManagementMenu();
+
 
 #endif // !MENU_H

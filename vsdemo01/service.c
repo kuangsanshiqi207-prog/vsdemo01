@@ -1,5 +1,5 @@
 #include"service.h"
-#include <math.h>   // 用于 ceil 向上取整
+#include <math.h>  
 
 int doLogon(const char* pName, const char* pPwd, LogonInfo* pInfo) {
     int index = 0;
@@ -7,6 +7,7 @@ int doLogon(const char* pName, const char* pPwd, LogonInfo* pInfo) {
     if (pCard == NULL) return FALSE;
     if (pCard->nStatus != 0) return UNUSE;
     if (pCard->fBalance <= 0) return ENOUGHMONEY;
+    if (time(NULL) > pCard->tEnd) return UNUSE;
 
     // 修改卡状态
     pCard->nStatus = 1;
@@ -381,11 +382,4 @@ int exportStatisticsToFile(const char* filename, const char* content) {
     fprintf(fp, "%s", content);
     fclose(fp);
     return TRUE;
-}
-
-int adminLogin(const char* username, const char* password) {
-    // 默认管理员账号 admin / admin123
-    if (strcmp(username, "admin") == 0 && strcmp(password, "admin123") == 0)
-        return TRUE;
-    return FALSE;
 }
