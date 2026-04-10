@@ -8,7 +8,7 @@
  * @param void
  * @return void
  */
-void showMenu() {
+void showMenu(int currentAdminRole) {
     printf("------菜单界面------\n");
     printf("      1.添加卡\n");
     printf("      2.查询卡\n");
@@ -18,11 +18,14 @@ void showMenu() {
     printf("      6.退费\n");
     printf("      7.查询统计\n");
     printf("      8.注销卡\n");
-    printf("      9.计费标准管理\n");
-    printf("     10.恢复卡\n");    // 新增
+	printf("      9.恢复卡\n");
+    printf("      10.计费标准管理\n");
+    if (currentAdminRole == 0) {
+        printf("      11.管理员管理\n");
+    }
     printf("      0.退出系统\n");
     printf("--------------------\n");
-    printf("请输入您的选择: (0-10)");
+    printf("请输入您的选择: ");
 }
 
 void manageConfig() {
@@ -197,7 +200,7 @@ void query()
     {
         format_time(time, 20, sercCard->card.tLast);
         p = sercCard;
-        printf("%s\t%d\t%f\t%f\t%d\t%s\n", sercCard->card.aName, sercCard->card.nStatus, sercCard->card.fBalance, sercCard->card.fTotalUse, sercCard->card.nUseCount, time);
+        printf("%s\t%d\t%.0f\t%.0f\t%d\t%s\n", sercCard->card.aName, sercCard->card.nStatus, sercCard->card.fBalance, sercCard->card.fTotalUse, sercCard->card.nUseCount, time);
         sercCard = sercCard->next;
         free(p);
     }
@@ -207,6 +210,11 @@ void query()
 void login()
 {
     LogonInfo* logonInfo=(LogonInfo*)malloc(sizeof(LogonInfo));
+    if (logonInfo == NULL)
+    {
+        printf("分配空间失败\n");
+		return;
+    }
     char cardName[19] = "";
     char password[9] = "";
     printf("请输入上机卡号:<1-18>");
@@ -217,10 +225,11 @@ void login()
     getchar();
     int nResult = doLogon(cardName,password, logonInfo);
     char time[20]="";
-    if (!logonInfo == NULL)
+    if (logonInfo == NULL)
     {
-        format_time(time, 20, logonInfo->tLogon);
+        return;
     }
+    format_time(time, 20, logonInfo->tLogon);
     printf("----上机结果----\n");
     switch (nResult)
     {
@@ -228,7 +237,7 @@ void login()
     case 1:
         printf("%s\n", "上机成功");
         printf("%8s %8s %8s","卡号","余额","上机时间\n");
-        printf("%s,%f,%s\n", logonInfo->aCardName, logonInfo->fBalance, time);
+        printf("%s,%.0f,%s\n", logonInfo->aCardName, logonInfo->fBalance, time);
         break;
     case 2:printf("%s\n","卡不能使用"); break;
     case 3:printf("%s\n","余额不足"); break;
@@ -300,6 +309,20 @@ void rechange()
     printf("请输入充值金额: ");
     scanf("%f", &money.fMoney);
     getchar();
+    if(money.fMoney <= 0) {
+        printf("充值金额必须大于零！\n");
+        return;
+	}
+    if (money.fMoney > 10000)
+    {
+        printf("充值金额过大！\n");
+		return;
+    }
+    if(money.fMoney < 1) {
+        printf("充值金额过小！\n");
+        return;
+	}
+
 
     int result = doAddMoney(cardName,password,&money);
 
@@ -435,10 +458,10 @@ void statistics() {
     }
     case 2:  // 统计总营业额
     {
-        printf("请输入起始时间: ");
+        printf("请输入起始时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
         startStr[strcspn(startStr, "\n")] = '\0';
-        printf("请输入结束时间: ");
+        printf("请输入结束时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
         endStr[strcspn(endStr, "\n")] = '\0';
         start = parse_time(startStr);
@@ -461,7 +484,7 @@ void statistics() {
         if (getMonthlyTurnover(year, monthly)) {
             char buf[1024] = { 0 };
             char line[128];
-            sprintf(buf, "\n%s 年各月营业额:\n", year);
+            sprintf(buf, "\n%d 年各月营业额:\n", year);
             for (int i = 0; i < 12; i++) {
                 sprintf(line, "%2d月: %.2f 元\n", i + 1, monthly[i]);
                 strcat(buf, line);
@@ -476,10 +499,10 @@ void statistics() {
     }
     case 4:  // 现金流统计
     {
-        printf("请输入起始时间: ");
+        printf("请输入起始时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
         startStr[strcspn(startStr, "\n")] = '\0';
-        printf("请输入结束时间: ");
+        printf("请输入结束时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
         endStr[strcspn(endStr, "\n")] = '\0';
         start = parse_time(startStr);

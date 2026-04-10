@@ -140,7 +140,7 @@ int doAddMoney(const char* pName, const char* pPwd, Money* money)
         return FALSE;  // 已注销或失效
     }
 
-    if (pCard->fBalance + money->fMoney > MAX_BALANCE) {
+    if (money->fMoney > MAX_BALANCE) {
         return FALSE;   // 充值失败，超过上限
     }
 

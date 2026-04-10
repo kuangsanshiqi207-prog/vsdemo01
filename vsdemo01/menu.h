@@ -12,7 +12,7 @@
 #include "admin_service.h"
 
 
-void showMenu();
+void showMenu(int currentAdminRole);
 void initSpace();
 void add();
 void query();

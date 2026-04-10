@@ -4,7 +4,8 @@ AdminList* adminList = NULL;
 Admin* currentAdmin = NULL;
 int currentAdminRole = -1;
 
-void initAdminList() {
+void initAdminList() 
+{
     // 创建头结点
     AdminList* dummy = (AdminList*)malloc(sizeof(AdminList));
     if (dummy == NULL) return;
@@ -12,7 +13,8 @@ void initAdminList() {
     adminList = dummy;
 
     int count = getAdminCount(ADMIN_PATH);
-    if (count == 0) {
+    if (count == 0) 
+    {
         // 如果没有管理员文件，创建一个默认超级管理员 admin / admin123
         Admin defaultAdmin;
         strcpy(defaultAdmin.username, "admin");
@@ -25,16 +27,22 @@ void initAdminList() {
 
     Admin* arr = (Admin*)malloc(count * sizeof(Admin));
     if (arr == NULL) return;
+    memset(arr, 0, count * sizeof(Admin));
     int readCnt = readAllAdmins(arr, ADMIN_PATH);
-    if (readCnt <= 0) {
+    if (readCnt <= 0) 
+    {
         free(arr);
         return;
     }
 
+	if (readCnt > count) readCnt = count;  // 以防文件被修改导致读取异常
+
     AdminList* tail = dummy;
-    for (int i = 0; i < readCnt; i++) {
+    for (int i = 0; i < readCnt; i++) 
+    {
         // 只加载未删除的
-        if (arr[i].nDel == 0) {
+        if (arr[i].nDel == 0) 
+        {
             AdminList* newNode = (AdminList*)malloc(sizeof(AdminList));
             if (newNode == NULL) break;
             newNode->admin = arr[i];
