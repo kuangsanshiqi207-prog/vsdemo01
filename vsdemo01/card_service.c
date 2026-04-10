@@ -197,36 +197,20 @@ void freeQueryResult(CardList* result)
     }
 }
 
-Card* checkCard(const char* name, const char* pPwd, int* pIndex)
-{
-    CardList* curr = cardlist->next;   // 跳过表头
-    CardList* result = NULL;
+Card* checkCard(const char* pName, const char* pPwd, int* pIndex) {
+    if (pName == NULL || pPwd == NULL || pIndex == NULL) return NULL;
+    CardList* curr = cardlist->next;
+    int idx = 1;
     while (curr != NULL) {
-        *pIndex+=1;
-        if (strcmp(curr->card.aName, name) == 0) {
-           
-            result = (CardList*)malloc(sizeof(CardList));
-            if (result == NULL) {
-                *pIndex = -1;
-                return NULL;
-            }
-            copyCard(&result->card, &curr->card);
-            result->next = NULL;
-            break;
+        if (strcmp(curr->card.aName, pName) == 0 &&
+            strcmp(curr->card.aPwd, pPwd) == 0) {
+            *pIndex = idx;
+            return &(curr->card);   // 直接返回链表中卡的地址
         }
+        idx++;
         curr = curr->next;
     }
-    if (curr == NULL)
-    {
-        return NULL;
-    }
-    if (!strcmp(result->card.aPwd, pPwd) == 0)
-    {
-        return NULL;
-    }
-    //copyCard(&curr->card, &result->card);
-    //updateCardFile(&result->card, userpath,*pIndex);
-    return &result->card;
+    return NULL;
 }
 
 // 在 card_service.c 末尾添加
@@ -277,6 +261,24 @@ int updateCard(Card* card,int index)
     copyCard(&curr->card,card);
     if (updateCardFile(card, userpath, index) == 0)
     {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+int restoreCard(const char* pName, const char* pPwd) 
+{
+    if (pName == NULL || pPwd == NULL) return FALSE;
+    int index = 0;
+    Card* pCard = checkCard(pName, pPwd, &index);
+    if (pCard == NULL) return FALSE;
+    // 只有状态为2（已注销）的卡才能恢复
+    if (pCard->nStatus != 2) return FALSE;
+    pCard->nStatus = 0;
+
+    if (updateCard(pCard, index) == FALSE) 
+    {
+        pCard->nStatus = 2;
         return FALSE;
     }
     return TRUE;

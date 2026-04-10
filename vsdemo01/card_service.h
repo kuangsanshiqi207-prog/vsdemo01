@@ -18,6 +18,7 @@ void freeCard();
 Card* checkCard(const char* pName, const char* pPwd, int* pIndex);
 CardList* findCardForSettle(const char* name, const char* pwd, int* pIndex);
 int updateCard(Card* card, int index);
+int restoreCard(const char* pName, const char* pPwd);
 
 #endif // !CARD_SERVICE_H
 

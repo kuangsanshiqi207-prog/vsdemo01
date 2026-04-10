@@ -128,6 +128,7 @@
     <ClInclude Include="billing_service.h" />
     <ClInclude Include="card_file.h" />
     <ClInclude Include="card_service.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="model.h" />
@@ -141,6 +142,7 @@
     <ClCompile Include="billing_service.c" />
     <ClCompile Include="card_file.c" />
     <ClCompile Include="card_service.c" />
+    <ClCompile Include="config.c" />
     <ClCompile Include="global.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="menu.c" />

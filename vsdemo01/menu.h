@@ -21,5 +21,8 @@ void settle();
 void rechange();
 void refundMoney();  
 void cancelCard();  
+void statistics();
+void manageConfig();
+void restoreCardMenu();
 
 #endif // !MENU_H

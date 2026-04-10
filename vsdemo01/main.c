@@ -2,14 +2,6 @@
 #include<stdbool.h>
 #include"menu.h"
 
-//int main() {
-//    BillingList* dummy = (BillingList*)malloc(sizeof(BillingList));
-//    if (dummy) {
-//        dummy->next = NULL;   // 这一行还崩溃吗？
-//    }
-//    initBillingList();
-//    return 0;
-//}
 
 /**
 * 计费管理系统主函数
@@ -19,6 +11,21 @@
 */
 int main()
 {
+	loadConfig();
+	// 管理员登录验证
+	char username[32], password[32];
+	printf("====== 管理员登录 ======\n");
+	printf("用户名: ");
+	scanf("%31s", username);
+	printf("密码: ");
+	scanf("%31s", password);
+	getchar(); // 清除换行符
+	if (!adminLogin(username, password)) {
+		printf("用户名或密码错误，程序退出。\n");
+		return 0;
+	}
+	printf("登录成功！\n\n");
+
 	printf("欢迎进入计费管理系统\n");
 	initSpace();
 	int exit = 1;				//登录状态变量
@@ -34,59 +41,48 @@ int main()
 		switch (userChoice)		//根据用户输入执行相应操作
 		{
 			case 1:				//添加卡
-			{
 				printf("添加卡\n");
 				add();
 				break;
-			}
 			case 2:				//查询卡
-			{
 				printf("查询卡\n");
 				query();
 				break;
-			}
 			case 3:				//上机
-			{
 				printf("上机\n");
 				login();
 				break;
-			}
 			case 4:				//下机
-			{
 				printf("下机\n");
 				settle();
 				break;
-			}
 			case 5:				//充值
-			{
 				printf("充值\n");
 				rechange();
 				break;
-			}
 			case 6:				//退费
-			{
 				printf("退费\n");
 				refundMoney();
 				break;
-			}
 			case 7:				//查询统计
-			{
 				printf("查询统计\n");
+				statistics();
 				break;
-			}
 			case 8:				//注销卡
-			{
 				printf("注销卡\n");
 				cancelCard();
 				break;
-			}
+			case 9:
+				manageConfig();
+				break;
+			case 10:
+				restoreCardMenu();
+				break;
 			case 0:
-			{
 				exit = 0;	//退出系统
 				freespace();
 				printf("感谢使用计费管理系统，再见！\n");
 				break;
-			}
 			default:
 				printf("无效的选择。\n");
 		}

@@ -51,6 +51,9 @@
     <ClInclude Include="money_service.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="billing_service.c">
@@ -87,6 +90,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="money_service.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="config.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "menu.h"
 
-
+#include <ctype.h>
 
 /**
  * 显示菜单界面
@@ -8,8 +8,7 @@
  * @param void
  * @return void
  */
-void showMenu()
-{
+void showMenu() {
     printf("------菜单界面------\n");
     printf("      1.添加卡\n");
     printf("      2.查询卡\n");
@@ -19,15 +18,81 @@ void showMenu()
     printf("      6.退费\n");
     printf("      7.查询统计\n");
     printf("      8.注销卡\n");
+    printf("      9.计费标准管理\n");
+    printf("     10.恢复卡\n");    // 新增
     printf("      0.退出系统\n");
     printf("--------------------\n");
-    printf("请输入您的选择: (1-8)");
+    printf("请输入您的选择: (0-10)");
+}
+
+void manageConfig() {
+    int choice;
+    do {
+        printf("\n====== 计费标准管理 ======\n");
+        printf("1. 查看当前标准\n");
+        printf("2. 修改标准\n");
+        printf("3. 恢复默认标准\n");
+        printf("0. 返回上级菜单\n");
+        printf("请选择: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+        case 1:
+            showConfig();
+            break;
+        case 2: {
+            int unit;
+            double charge;
+            printf("请输入新的收费单元（分钟）: ");
+            scanf("%d", &unit);
+            printf("请输入每个单元的金额（元）: ");
+            scanf("%lf", &charge);
+            getchar();
+            if (unit > 0 && charge > 0) {
+                setConfig(unit, charge);
+                printf("计费标准已更新！\n");
+            }
+            else {
+                printf("输入无效，标准未改变。\n");
+            }
+            break;
+        }
+        case 3:
+            setConfig(UNIT, CHARGE);  // 恢复默认宏
+            printf("已恢复默认计费标准。\n");
+            break;
+        case 0:
+            break;
+        default:
+            printf("无效选择。\n");
+        }
+    } while (choice != 0);
 }
 
 void initSpace()
 {
     initCard();
     initBillingList();
+}
+
+// 检查字符串是否全为数字
+static int isAllDigits(const char* str) {
+    for (int i = 0; str[i]; i++) {
+        if (!isdigit((unsigned char)str[i])) return 0;
+    }
+    return 1;
+}
+
+// 检查密码是否同时包含字母和数字
+static int isAlphaNumMix(const char* pwd) {
+    int hasDigit = 0, hasAlpha = 0;
+    for (int i = 0; pwd[i]; i++) {
+        if (isdigit((unsigned char)pwd[i])) hasDigit = 1;
+        else if (isalpha((unsigned char)pwd[i])) hasAlpha = 1;
+        else return 0;
+    }
+    return hasDigit && hasAlpha;
 }
 
 void add()
@@ -45,15 +110,24 @@ void add()
     char pass[100];   // 存储密码
 
     // 输入卡号
-    printf("请输入卡号: <长度为0-18>");
+    printf("请输入卡号: <1-18位数字>");
     fgets(cardName, sizeof(cardName), stdin);
-    // 去掉 fgets 读入的换行符
     cardName[strcspn(cardName, "\n")] = '\0';
+    if (strlen(cardName) == 0 || strlen(cardName) > 18 || !isAllDigits(cardName)) {
+        printf("卡号必须是1-18位数字！\n");
+        free(newCard);
+        return;
+    }
 
     // 输入密码
-    printf("请输入密码: <长度为8>");
+    printf("请输入密码: <8位，必须包含数字和字母>");
     fgets(pass, sizeof(pass), stdin);
     pass[strcspn(pass, "\n")] = '\0';
+    if (strlen(pass) != 8 || !isAlphaNumMix(pass)) {
+        printf("密码必须是8位数字和字母的组合！\n");
+        free(newCard);
+        return;
+    }
 
     // 检查长度
     if (strlen(cardName) > 18 || strlen(pass) != 8)
@@ -143,7 +217,10 @@ void login()
     getchar();
     int nResult = doLogon(cardName,password, logonInfo);
     char time[20]="";
-    format_time(time,20,logonInfo->tLogon);
+    if (!logonInfo == NULL)
+    {
+        format_time(time, 20, logonInfo->tLogon);
+    }
     printf("----上机结果----\n");
     switch (nResult)
     {
@@ -160,7 +237,6 @@ void login()
 }
 
 
-// 在 menu.c 中添加
 
 void settle() {
     printf("------下机------\n");
@@ -302,6 +378,147 @@ void cancelCard()
     }
     else {
         printf("注销失败！请检查卡号密码或卡未处于未上机状态\n");
+    }
+}
+
+
+void statistics() {
+    printf("\n====== 查询统计 ======\n");
+    printf("1. 消费记录查询\n");
+    printf("2. 统计总营业额\n");
+    printf("3. 统计月营业额\n");
+    printf("4. 现金流统计（特色）\n");
+    printf("0. 返回上级菜单\n");
+    printf("请选择: ");
+    int choice;
+    scanf("%d", &choice);
+    getchar();
+
+    char startStr[20], endStr[20];
+    time_t start, end;
+    struct tm tmStart = { 0 }, tmEnd = { 0 };
+
+    switch (choice) {
+    case 1:  // 消费记录查询
+    {
+        char cardName[19] = { 0 };
+        printf("请输入卡号: ");
+        scanf("%18s", cardName);
+        getchar();
+        printf("请输入起始时间 (格式: YYYY-MM-DD HH:MM:SS): ");
+        fgets(startStr, sizeof(startStr), stdin);
+        startStr[strcspn(startStr, "\n")] = '\0';
+        printf("请输入结束时间 (格式: YYYY-MM-DD HH:MM:SS): ");
+        fgets(endStr, sizeof(endStr), stdin);
+        endStr[strcspn(endStr, "\n")] = '\0';
+
+        start = parse_time(startStr);
+        end = parse_time(endStr);
+
+        Billing* results = NULL;
+        int count = 0;
+        if (queryConsumptionByCard(cardName, start, end, &results, &count)) {
+            printf("\n消费记录 (%d 条):\n", count);
+            printf("卡号\t\t上机时间\t\t下机时间\t\t消费金额\n");
+            char startTime[20], endTime[20];
+            for (int i = 0; i < count; i++) {
+                format_time(startTime, sizeof(startTime), results[i].tStart);
+                format_time(endTime, sizeof(endTime), results[i].tEnd);
+                printf("%s\t%s\t%s\t%.2f\n", results[i].aCardName, startTime, endTime, results[i].fAmount);
+            }
+            free(results);
+        }
+        else {
+            printf("未找到符合条件的消费记录。\n");
+        }
+        break;
+    }
+    case 2:  // 统计总营业额
+    {
+        printf("请输入起始时间: ");
+        fgets(startStr, sizeof(startStr), stdin);
+        startStr[strcspn(startStr, "\n")] = '\0';
+        printf("请输入结束时间: ");
+        fgets(endStr, sizeof(endStr), stdin);
+        endStr[strcspn(endStr, "\n")] = '\0';
+        start = parse_time(startStr);
+        end = parse_time(endStr);
+        double turnover = getTotalTurnover(start, end);
+        char buf[256];
+        sprintf(buf, "\n时间段 %s 至 %s 的总营业额为: %.2f 元\n", startStr, endStr, turnover);
+        printf("%s", buf);
+        // 输出到文件
+        exportStatisticsToFile("statistics.txt", buf);
+        break;
+    }
+    case 3:  // 统计月营业额
+    {
+        int year;
+        printf("请输入年份 (如 2026): ");
+        scanf("%d", &year);
+        getchar();
+        double monthly[12];
+        if (getMonthlyTurnover(year, monthly)) {
+            char buf[1024] = { 0 };
+            char line[128];
+            sprintf(buf, "\n%s 年各月营业额:\n", year);
+            for (int i = 0; i < 12; i++) {
+                sprintf(line, "%2d月: %.2f 元\n", i + 1, monthly[i]);
+                strcat(buf, line);
+                printf("%s", line);
+            }
+            exportStatisticsToFile("statistics.txt", buf);
+        }
+        else {
+            printf("无数据或读取失败。\n");
+        }
+        break;
+    }
+    case 4:  // 现金流统计
+    {
+        printf("请输入起始时间: ");
+        fgets(startStr, sizeof(startStr), stdin);
+        startStr[strcspn(startStr, "\n")] = '\0';
+        printf("请输入结束时间: ");
+        fgets(endStr, sizeof(endStr), stdin);
+        endStr[strcspn(endStr, "\n")] = '\0';
+        start = parse_time(startStr);
+        end = parse_time(endStr);
+        double recharge, refund;
+        if (getCashFlow(start, end, &recharge, &refund)) {
+            char buf[512];
+            sprintf(buf, "\n时间段 %s 至 %s 的现金流:\n充值总额: %.2f 元\n退费总额: %.2f 元\n净流入: %.2f 元\n",
+                startStr, endStr, recharge, refund, recharge - refund);
+            printf("%s", buf);
+            exportStatisticsToFile("statistics.txt", buf);
+        }
+        else {
+            printf("无充值退费数据或读取失败。\n");
+        }
+        break;
+    }
+    case 0:
+        return;
+    default:
+        printf("无效选择。\n");
+    }
+}
+
+void restoreCardMenu() {
+    printf("------恢复已注销卡------\n");
+    char cardName[19] = { 0 };
+    char password[9] = { 0 };
+    printf("请输入卡号: ");
+    scanf("%18s", cardName);
+    getchar();
+    printf("请输入密码: ");
+    scanf("%8s", password);
+    getchar();
+    if (restoreCard(cardName, password)) {
+        printf("卡号 %s 恢复成功！\n", cardName);
+    }
+    else {
+        printf("恢复失败，请检查卡号密码或该卡未处于注销状态。\n");
     }
 }
 

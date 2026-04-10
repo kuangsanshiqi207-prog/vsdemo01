@@ -73,3 +73,40 @@ int updateBilling(const Billing* pBilling, const char* pPath, int nIndex) {
     fclose(fp);
     return (written == 1) ? TRUE : FALSE;
 }
+
+// ÔÚ billing_file.c Ä©Î²Ìí¼Ó
+int getAllBillings(Billing** ppBillings) {
+    FILE* fp = fopen(billingpath, "rb");
+    if (fp == NULL) {
+        *ppBillings = NULL;
+        return 0;
+    }
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    int count = (int)(size / sizeof(Billing));
+    if (count == 0) {
+        fclose(fp);
+        *ppBillings = NULL;
+        return 0;
+    }
+    Billing* arr = (Billing*)malloc(count * sizeof(Billing));
+    if (arr == NULL) {
+        fclose(fp);
+        *ppBillings = NULL;
+        return 0;
+    }
+    rewind(fp);
+    size_t readCount = fread(arr, sizeof(Billing), count, fp);
+    fclose(fp);
+    if (readCount != count) {
+        free(arr);
+        *ppBillings = NULL;
+        return 0;
+    }
+    *ppBillings = arr;
+    return count;
+}
+
+void freeBillings(Billing* pBillings) {
+    if (pBillings) free(pBillings);
+}

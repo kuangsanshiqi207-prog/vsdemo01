@@ -1,40 +1,36 @@
 #include"service.h"
 #include <math.h>   // 用于 ceil 向上取整
 
-int doLogon(const char* pName, const char* pPwd, LogonInfo* pInfo)
-{
-    int ind = 0;
-    Card* card=checkCard(pName, pPwd, &ind);
-    if (card == NULL)
-    {
+int doLogon(const char* pName, const char* pPwd, LogonInfo* pInfo) {
+    int index = 0;
+    Card* pCard = checkCard(pName, pPwd, &index);
+    if (pCard == NULL) return FALSE;
+    if (pCard->nStatus != 0) return UNUSE;
+    if (pCard->fBalance <= 0) return ENOUGHMONEY;
+
+    // 修改卡状态
+    pCard->nStatus = 1;
+
+    // 将卡状态更新到文件（并同步链表，updateCard内部会调用copyCard）
+    if (updateCard(pCard, index) == FALSE) {
+        pCard->nStatus = 0; // 回滚
         return FALSE;
     }
-    if (card->nStatus != 0)
-    {
-        return UNUSE;
-    }
-    if(card->fBalance <= 0)
-    {
-        return ENOUGHMONEY;
-    }
-    card->nStatus = 1;
 
-    strcpy(pInfo->aCardName , card->aName);
-    pInfo->fBalance = card->fBalance;
+    // 填充上机信息
+    strcpy(pInfo->aCardName, pCard->aName);
+    pInfo->fBalance = pCard->fBalance;
     pInfo->tLogon = time(NULL);
 
+    // 创建计费记录（未结算）
     Billing* billing = (Billing*)malloc(sizeof(Billing));
-    if (billing == NULL)
-    {
-        return FALSE;
-    }
+    if (billing == NULL) return FALSE;
     InitBilling(billing);
     billing->tStart = pInfo->tLogon;
-    strcpy(billing->aCardName , pInfo->aCardName);
-
+    strcpy(billing->aCardName, pInfo->aCardName);
     addBilling(billing);
-
     free(billing);
+
     return TRUE;
 }
 
@@ -45,12 +41,12 @@ int doLogon(const char* pName, const char* pPwd, LogonInfo* pInfo)
  * @param tEnd   下机时间
  * @return 消费金额（元）
  */
+ // 在 service.c 开头添加
 double getAmount(time_t tStart, time_t tEnd) {
     double minutes = difftime(tEnd, tStart) / 60.0;
     if (minutes <= 0) return 0.0;
-    // 不足一个收费单元按一个单元计算
-    int units = (int)ceil(minutes / UNIT);
-    return units * CHARGE;
+    int units = (int)ceil(minutes / g_config.unitMinutes);
+    return units * g_config.charge;
 }
 
 /**
@@ -141,6 +137,10 @@ int doAddMoney(const char* pName, const char* pPwd, Money* money)
     // 检查卡状态:只有未上机(0)或正在上机(1)可以充值（未注销且未失效）
     if (pCard->nStatus == 2 || pCard->nStatus == 3) {
         return FALSE;  // 已注销或失效
+    }
+
+    if (pCard->fBalance + money->fMoney > MAX_BALANCE) {
+        return FALSE;   // 充值失败，超过上限
     }
 
     // 更新余额
@@ -267,4 +267,125 @@ int doCancelCard(const char* pName, const char* pPwd, Money* pMoneyInfo) {
     pMoneyInfo->fMoney = refundAmount;
 
     return TRUE;
+}
+
+// 在 service.c 末尾添加
+
+// 1. 消费记录查询（根据卡号和时间段）
+int queryConsumptionByCard(const char* cardName, time_t start, time_t end, Billing** ppResults, int* pCount) {
+    if (cardName == NULL || ppResults == NULL || pCount == NULL) return FALSE;
+    Billing* allBillings = NULL;
+    int total = getAllBillings(&allBillings);
+    if (total <= 0) {
+        *ppResults = NULL;
+        *pCount = 0;
+        return FALSE;
+    }
+    // 先统计符合条件的数量
+    int matchCount = 0;
+    for (int i = 0; i < total; i++) {
+        if (allBillings[i].nStatus == 1 && strcmp(allBillings[i].aCardName, cardName) == 0) {
+            if (allBillings[i].tStart >= start && allBillings[i].tEnd <= end) {
+                matchCount++;
+            }
+        }
+    }
+    if (matchCount == 0) {
+        freeBillings(allBillings);
+        *ppResults = NULL;
+        *pCount = 0;
+        return FALSE;
+    }
+    Billing* results = (Billing*)malloc(matchCount * sizeof(Billing));
+    if (results == NULL) {
+        freeBillings(allBillings);
+        return FALSE;
+    }
+    int idx = 0;
+    for (int i = 0; i < total; i++) {
+        if (allBillings[i].nStatus == 1 && strcmp(allBillings[i].aCardName, cardName) == 0) {
+            if (allBillings[i].tStart >= start && allBillings[i].tEnd <= end) {
+                results[idx++] = allBillings[i];
+            }
+        }
+    }
+    freeBillings(allBillings);
+    *ppResults = results;
+    *pCount = matchCount;
+    return TRUE;
+}
+
+// 2. 统计总营业额（时间段内所有已结算消费金额之和）
+double getTotalTurnover(time_t start, time_t end) {
+    Billing* allBillings = NULL;
+    int total = getAllBillings(&allBillings);
+    if (total <= 0) return 0.0;
+    double sum = 0.0;
+    for (int i = 0; i < total; i++) {
+        if (allBillings[i].nStatus == 1 && allBillings[i].tStart >= start && allBillings[i].tEnd <= end) {
+            sum += allBillings[i].fAmount;
+        }
+    }
+    freeBillings(allBillings);
+    return sum;
+}
+
+// 3. 统计月营业额（给定年份，返回12个月每个月的营业额）
+int getMonthlyTurnover(int year, double monthlyTurnover[12]) {
+    if (monthlyTurnover == NULL) return FALSE;
+    // 初始化数组为0
+    for (int i = 0; i < 12; i++) monthlyTurnover[i] = 0.0;
+    Billing* allBillings = NULL;
+    int total = getAllBillings(&allBillings);
+    if (total <= 0) return FALSE;
+    for (int i = 0; i < total; i++) {
+        if (allBillings[i].nStatus == 1) {
+            struct tm* tm_info = localtime(&allBillings[i].tEnd);
+            if (tm_info->tm_year + 1900 == year) {
+                int month = tm_info->tm_mon; // 0-11
+                monthlyTurnover[month] += allBillings[i].fAmount;
+            }
+        }
+    }
+    freeBillings(allBillings);
+    return TRUE;
+}
+
+// 4. 特色功能：现金流统计（充值总额、退费总额）
+int getCashFlow(time_t start, time_t end, double* totalRecharge, double* totalRefund) {
+    if (totalRecharge == NULL || totalRefund == NULL) return FALSE;
+    *totalRecharge = 0.0;
+    *totalRefund = 0.0;
+    Money* allMoneys = NULL;
+    int total = getAllMoneys(&allMoneys);
+    if (total <= 0) return FALSE;
+    for (int i = 0; i < total; i++) {
+        if (allMoneys[i].tTime >= start && allMoneys[i].tTime <= end) {
+            if (allMoneys[i].nStatus == 0) { // 充值
+                *totalRecharge += allMoneys[i].fMoney;
+            }
+            else if (allMoneys[i].nStatus == 1) { // 退费
+                *totalRefund += allMoneys[i].fMoney;
+            }
+        }
+    }
+    freeMoneys(allMoneys);
+    return TRUE;
+}
+
+// 5. 辅助函数：将统计结果输出到文件（追加或覆盖）
+int exportStatisticsToFile(const char* filename, const char* content) {
+    if (filename == NULL || content == NULL) return FALSE;
+    FILE* fp = fopen(filename, "a");  // 追加模式
+    if (fp == NULL) return FALSE;
+    fprintf(fp, "%s", content);
+    fclose(fp);
+    return TRUE;
+}
+
+int adminLogin(const char* username, const char* password) {
+    // 默认管理员账号 admin / admin123
+    if (strcmp(username, "admin") == 0 && strcmp(password, "admin123") == 0)
+        return TRUE;
+    return FALSE;
 }
