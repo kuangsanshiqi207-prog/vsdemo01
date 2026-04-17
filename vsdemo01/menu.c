@@ -8,7 +8,7 @@
  * @param void
  * @return void
  */
-void showMenu(int currentAdminRole) {
+void showMenu(int AdminRole) {
     printf("------菜单界面------\n");
     printf("      1.添加卡\n");
     printf("      2.查询卡\n");
@@ -20,7 +20,7 @@ void showMenu(int currentAdminRole) {
     printf("      8.注销卡\n");
 	printf("      9.恢复卡\n");
     printf("      10.计费标准管理\n");
-    if (currentAdminRole == 0) {
+    if (AdminRole == 0) {
         printf("      11.管理员管理\n");
     }
     printf("      0.退出系统\n");
@@ -410,7 +410,7 @@ void statistics() {
     printf("1. 消费记录查询\n");
     printf("2. 统计总营业额\n");
     printf("3. 统计月营业额\n");
-    printf("4. 现金流统计（特色）\n");
+    printf("4. 现金流统计\n");
     printf("0. 返回上级菜单\n");
     printf("请选择: ");
     int choice;
@@ -427,9 +427,17 @@ void statistics() {
         char cardName[19] = { 0 };
         printf("请输入卡号: ");
         scanf("%18s", cardName);
-        getchar();
+        while (getchar() != '\n');
         printf("请输入起始时间 (格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
+        if (strchr(startStr, '\n') == NULL) {
+            // 输入过长，清空到换行符
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+        else {
+            startStr[strcspn(startStr, "\n")] = '\0';
+        }
         startStr[strcspn(startStr, "\n")] = '\0';
         printf("请输入结束时间 (格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
@@ -460,6 +468,14 @@ void statistics() {
     {
         printf("请输入起始时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
+        if (strchr(startStr, '\n') == NULL) {
+            // 输入过长，清空到换行符
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+        else {
+            startStr[strcspn(startStr, "\n")] = '\0';
+        }
         startStr[strcspn(startStr, "\n")] = '\0';
         printf("请输入结束时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
@@ -501,6 +517,13 @@ void statistics() {
     {
         printf("请输入起始时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
+        if (strchr(startStr, '\n') == NULL) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+        else {
+            startStr[strcspn(startStr, "\n")] = '\0';
+        }
         startStr[strcspn(startStr, "\n")] = '\0';
         printf("请输入结束时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);

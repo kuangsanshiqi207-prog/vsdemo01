@@ -12,7 +12,7 @@
 #define MAX_SIZE 50
 #define UNIT 15      // 最小收费单元（分钟）
 #define CHARGE 0.5   // 每个收费单元的金额（元）
-#define MAX_BALANCE 10000000.0   // 最大余额限制（元）
+#define MAX_BALANCE 100000.0   // 最大充值额限制（元）
 
 extern char userpath[100];
 extern char billingpath[100];
