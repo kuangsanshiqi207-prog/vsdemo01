@@ -9,6 +9,8 @@
 #include"model.h"
 #include<string.h>
 #include<time.h>
+#include <ctype.h>
+#include"tool.h"
 #include "admin_service.h"
 
 

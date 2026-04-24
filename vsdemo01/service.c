@@ -145,7 +145,7 @@ int doAddMoney(const char* pName, const char* pPwd, Money* money)
     }
 
     // 更新余额
-    float oldBalance = pCard->fBalance;
+    double oldBalance = pCard->fBalance;
     pCard->fBalance += money->fMoney;
 
     // 更新文件中的卡信息
@@ -194,7 +194,7 @@ int doRefundMoney(const char* pName, const char* pPwd, Money* pMoneyInfo)
         return FALSE;
     }
 
-    float refundAmount = pCard->fBalance;
+    double refundAmount = pCard->fBalance;
     // 清零余额
     pCard->fBalance = 0.0f;
 
@@ -239,7 +239,7 @@ int doCancelCard(const char* pName, const char* pPwd, Money* pMoneyInfo) {
         return FALSE;
     }
 
-    float refundAmount = pCard->fBalance;
+    double refundAmount = pCard->fBalance;
     // 修改卡状态为已注销(2)，余额清零
     pCard->nStatus = 2;
     pCard->fBalance = 0.0f;

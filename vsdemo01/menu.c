@@ -1,5 +1,5 @@
 #include "menu.h"
-
+#include "tool.h"
 #include <ctype.h>
 
 /**
@@ -18,7 +18,7 @@ void showMenu(int AdminRole) {
     printf("      6.退费\n");
     printf("      7.查询统计\n");
     printf("      8.注销卡\n");
-	printf("      9.恢复卡\n");
+    printf("      9.恢复卡\n");
     printf("      10.计费标准管理\n");
     if (AdminRole == 0) {
         printf("      11.管理员管理\n");
@@ -37,8 +37,9 @@ void manageConfig() {
         printf("3. 恢复默认标准\n");
         printf("0. 返回上级菜单\n");
         printf("请选择: ");
-        scanf("%d", &choice);
-        getchar();
+        if (!safeGetInt("", &choice, 0, 3)) {
+            choice = 0;
+        }
 
         switch (choice) {
         case 1:
@@ -47,22 +48,20 @@ void manageConfig() {
         case 2: {
             int unit;
             double charge;
-            printf("请输入新的收费单元（分钟）: ");
-            scanf("%d", &unit);
-            printf("请输入每个单元的金额（元）: ");
-            scanf("%lf", &charge);
-            getchar();
-            if (unit > 0 && charge > 0) {
-                setConfig(unit, charge);
-                printf("计费标准已更新！\n");
-            }
-            else {
+            if (!safeGetInt("请输入新的收费单元（分钟）: ", &unit, 1, 1440)) {
                 printf("输入无效，标准未改变。\n");
+                break;
             }
+            if (!safeGetDouble("请输入每个单元的金额（元）: ", &charge, 0.01, 100)) {
+                printf("输入无效，标准未改变。\n");
+                break;
+            }
+            setConfig(unit, charge);
+            printf("计费标准已更新！\n");
             break;
         }
         case 3:
-            setConfig(UNIT, CHARGE);  // 恢复默认宏
+            setConfig(UNIT, CHARGE);
             printf("已恢复默认计费标准。\n");
             break;
         case 0:
@@ -73,8 +72,7 @@ void manageConfig() {
     } while (choice != 0);
 }
 
-void initSpace()
-{
+void initSpace() {
     initCard();
     initBillingList();
 }
@@ -98,19 +96,17 @@ static int isAlphaNumMix(const char* pwd) {
     return hasDigit && hasAlpha;
 }
 
-void add()
-{
+void add() {
     printf("------添加卡------\n");
     Card* newCard = (Card*)malloc(sizeof(struct Card));
-    if (newCard == NULL)
-    {
+    if (newCard == NULL) {
         printf("分配空间失败\n");
         return;
     }
 
     printf("请输入卡的信息:\n");
-    char cardName[100];   // 存储卡号，大小足够
-    char pass[100];   // 存储密码
+    char cardName[100];
+    char pass[100];
 
     // 输入卡号
     printf("请输入卡号: <1-18位数字>");
@@ -132,53 +128,44 @@ void add()
         return;
     }
 
-    // 检查长度
-    if (strlen(cardName) > 18 || strlen(pass) != 8)
-    {
-        printf("卡号或密码不符合规定\n");
-        return;
-    }
-
     strcpy(newCard->aName, cardName);
     strcpy(newCard->aPwd, pass);
 
     newCard->nStatus = 0;
     newCard->tStart = time(NULL);
-    newCard->tEnd = time(NULL) + 30 * 24 * 60 * 60;  // 当前时间 + 30 天的秒数
+    newCard->tEnd = time(NULL) + 30 * 24 * 60 * 60;
     newCard->fTotalUse = 0;
     newCard->tLast = time(NULL);
     newCard->nUseCount = 0;
     newCard->nDel = 0;
 
-    printf("请输入余额: <RMB>");
-    scanf("%f", &newCard->fBalance);
-    getchar();
-    
-    if (!addCard(newCard))
-    {
+    // 安全输入余额
+    if (!safeGetDouble("请输入余额 (RMB): ", &newCard->fBalance, 0, MAX_BALANCE)) {
+        printf("输入失败，取消添加卡。\n");
+        free(newCard);
+        return;
+    }
+
+    if (!addCard(newCard)) {
         printf("添加卡失败\n");
     }
-    else
-    {
+    else {
         printf("------添加卡的信息如下所示------\n");
         printf("卡号: %s\n", newCard->aName);
         printf("密码: %s\n", newCard->aPwd);
-        printf("余额: %f\n\n", newCard->fBalance);
+        printf("余额: %.2f\n\n", newCard->fBalance);
     }
 
     free(newCard);
 }
 
-
-void query()
-{
+void query() {
     printf("------查询卡------\n");
     char cardName[256] = { '\0' };
     printf("请输入您的卡号:");
     fgets(cardName, sizeof(cardName), stdin);
     cardName[strcspn(cardName, "\n")] = '\0';
-    if (strlen(cardName) > 18)
-    {
+    if (strlen(cardName) > 18) {
         printf("卡号不符合规定\n");
         return;
     }
@@ -186,8 +173,7 @@ void query()
     int flag = 0;
     CardList* sercCard = queryCard(cardName, &flag);
     CardList* p = NULL;
-    if (sercCard == NULL)
-    {
+    if (sercCard == NULL) {
         printf("卡号不存在,模糊匹配也不存在\n");
         return;
     }
@@ -196,56 +182,51 @@ void query()
 
     printf("------卡的信息如下所示------\n");
     printf("卡号\t状态\t余额\t累计使用\t使用次数\t上次上机时间\n");
-    while (sercCard != NULL)
-    {
+    while (sercCard != NULL) {
         format_time(time, 20, sercCard->card.tLast);
         p = sercCard;
-        printf("%s\t%d\t%.0f\t%.0f\t%d\t%s\n", sercCard->card.aName, sercCard->card.nStatus, sercCard->card.fBalance, sercCard->card.fTotalUse, sercCard->card.nUseCount, time);
+        printf("%s\t%d\t%.0f\t%.0f\t%d\t%s\n", sercCard->card.aName, sercCard->card.nStatus,
+            sercCard->card.fBalance, sercCard->card.fTotalUse, sercCard->card.nUseCount, time);
         sercCard = sercCard->next;
         free(p);
     }
-
 }
 
-void login()
-{
-    LogonInfo* logonInfo=(LogonInfo*)malloc(sizeof(LogonInfo));
-    if (logonInfo == NULL)
-    {
+void login() {
+    LogonInfo* logonInfo = (LogonInfo*)malloc(sizeof(LogonInfo));
+    if (logonInfo == NULL) {
         printf("分配空间失败\n");
-		return;
+        return;
     }
     char cardName[19] = "";
     char password[9] = "";
     printf("请输入上机卡号:<1-18>");
-    scanf("%s",cardName);
-    getchar();
+    scanf("%18s", cardName);
+    clearInputBuffer();
     printf("请输入上机密码<8>:");
-    scanf("%s", password);
-    getchar();
-    int nResult = doLogon(cardName,password, logonInfo);
-    char time[20]="";
-    if (logonInfo == NULL)
-    {
+    scanf("%8s", password);
+    clearInputBuffer();
+
+    int nResult = doLogon(cardName, password, logonInfo);
+    char time[20] = "";
+    if (logonInfo == NULL) {
+        free(logonInfo);
         return;
     }
     format_time(time, 20, logonInfo->tLogon);
     printf("----上机结果----\n");
-    switch (nResult)
-    {
-    case 0:printf("%s\n","上机失败"); break;
+    switch (nResult) {
+    case 0: printf("%s\n", "上机失败"); break;
     case 1:
         printf("%s\n", "上机成功");
-        printf("%8s %8s %8s","卡号","余额","上机时间\n");
+        printf("%8s %8s %8s", "卡号", "余额", "上机时间\n");
         printf("%s,%.0f,%s\n", logonInfo->aCardName, logonInfo->fBalance, time);
         break;
-    case 2:printf("%s\n","卡不能使用"); break;
-    case 3:printf("%s\n","余额不足"); break;
+    case 2: printf("%s\n", "卡不能使用"); break;
+    case 3: printf("%s\n", "余额不足"); break;
     }
     free(logonInfo);
 }
-
-
 
 void settle() {
     printf("------下机------\n");
@@ -254,11 +235,11 @@ void settle() {
 
     printf("请输入下机卡号 (1-18位): ");
     scanf("%18s", cardName);
-    getchar();
+    clearInputBuffer();
 
     printf("请输入密码 (8位): ");
     scanf("%8s", password);
-    getchar();
+    clearInputBuffer();
 
     SettleInfo info = { 0 };
     int result = doSettle(cardName, password, &info);
@@ -290,53 +271,37 @@ void settle() {
     }
 }
 
-void rechange()
-{
+void rechange() {
     printf("------充值------\n");
     char cardName[19] = { 0 };
     char password[9] = { 0 };
 
     printf("请输入充值卡号 (1-18位): ");
     scanf("%18s", cardName);
-    getchar();
+    clearInputBuffer();
 
     printf("请输入密码 (8位): ");
     scanf("%8s", password);
-    getchar();
+    clearInputBuffer();
 
     Money money = { 0 };
 
-    printf("请输入充值金额: ");
-    scanf("%f", &money.fMoney);
-    getchar();
-    if(money.fMoney <= 0) {
-        printf("充值金额必须大于零！\n");
+    if (!safeGetDouble("请输入充值金额: ", &money.fMoney, 0.01, 10000)) {
+        printf("充值金额无效。\n");
         return;
-	}
-    if (money.fMoney > 10000)
-    {
-        printf("充值金额过大！\n");
-		return;
     }
-    if(money.fMoney < 1) {
-        printf("充值金额过小！\n");
-        return;
-	}
 
-
-    int result = doAddMoney(cardName,password,&money);
+    int result = doAddMoney(cardName, password, &money);
 
     char rechangeTime[20];
     format_time(rechangeTime, sizeof(rechangeTime), money.tTime);
-
 
     switch (result) {
     case TRUE:
         printf("充值成功！\n");
         printf("------卡的信息如下所示------\n");
         printf("卡号\t余额\t\t充值时间\n");
-        printf("%s\t%.2f\t\t%s\n",
-           money.aCardName,money.fMoney,rechangeTime);
+        printf("%s\t%.2f\t\t%s\n", money.aCardName, money.fMoney, rechangeTime);
         break;
     case FALSE:
         printf("充值失败:卡号或密码错误。\n");
@@ -350,20 +315,18 @@ void rechange()
     }
 }
 
-
-void refundMoney()
-{
+void refundMoney() {
     printf("------退费------\n");
     char cardName[19] = { 0 };
     char password[9] = { 0 };
 
     printf("请输入卡号 (1-18位): ");
     scanf("%18s", cardName);
-    getchar();
+    clearInputBuffer();
 
     printf("请输入密码 (8位): ");
     scanf("%8s", password);
-    getchar();
+    clearInputBuffer();
 
     Money moneyInfo = { 0 };
     int result = doRefundMoney(cardName, password, &moneyInfo);
@@ -377,19 +340,19 @@ void refundMoney()
         printf("退费失败！请检查卡号密码或卡状态（非未上机/余额为0）\n");
     }
 }
-void cancelCard()
-{
+
+void cancelCard() {
     printf("------注销卡------\n");
     char cardName[19] = { 0 };
     char password[9] = { 0 };
 
     printf("请输入卡号 (1-18位): ");
     scanf("%18s", cardName);
-    getchar();
+    clearInputBuffer();
 
     printf("请输入密码 (8位): ");
     scanf("%8s", password);
-    getchar();
+    clearInputBuffer();
 
     Money moneyInfo = { 0 };
     int result = doCancelCard(cardName, password, &moneyInfo);
@@ -404,7 +367,6 @@ void cancelCard()
     }
 }
 
-
 void statistics() {
     printf("\n====== 查询统计 ======\n");
     printf("1. 消费记录查询\n");
@@ -414,34 +376,29 @@ void statistics() {
     printf("0. 返回上级菜单\n");
     printf("请选择: ");
     int choice;
-    scanf("%d", &choice);
-    getchar();
+    if (!safeGetInt("", &choice, 0, 4)) {
+        choice = 0;
+    }
 
-    char startStr[20], endStr[20];
+    char startStr[100], endStr[100];
     time_t start, end;
-    struct tm tmStart = { 0 }, tmEnd = { 0 };
 
     switch (choice) {
-    case 1:  // 消费记录查询
-    {
+    case 1: {
         char cardName[19] = { 0 };
         printf("请输入卡号: ");
         scanf("%18s", cardName);
-        while (getchar() != '\n');
+        clearInputBuffer();
+
         printf("请输入起始时间 (格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
-        if (strchr(startStr, '\n') == NULL) {
-            // 输入过长，清空到换行符
-            int c;
-            while ((c = getchar()) != '\n' && c != EOF);
-        }
-        else {
-            startStr[strcspn(startStr, "\n")] = '\0';
-        }
-        startStr[strcspn(startStr, "\n")] = '\0';
+        if (strchr(startStr, '\n') == NULL) clearInputBuffer();
+        else startStr[strcspn(startStr, "\n")] = '\0';
+
         printf("请输入结束时间 (格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
-        endStr[strcspn(endStr, "\n")] = '\0';
+        if (strchr(endStr, '\n') == NULL) clearInputBuffer();
+        else endStr[strcspn(endStr, "\n")] = '\0';
 
         start = parse_time(startStr);
         end = parse_time(endStr);
@@ -464,38 +421,31 @@ void statistics() {
         }
         break;
     }
-    case 2:  // 统计总营业额
-    {
+    case 2: {
         printf("请输入起始时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
-        if (strchr(startStr, '\n') == NULL) {
-            // 输入过长，清空到换行符
-            int c;
-            while ((c = getchar()) != '\n' && c != EOF);
-        }
-        else {
-            startStr[strcspn(startStr, "\n")] = '\0';
-        }
-        startStr[strcspn(startStr, "\n")] = '\0';
+        if (strchr(startStr, '\n') == NULL) clearInputBuffer();
+        else startStr[strcspn(startStr, "\n")] = '\0';
+
         printf("请输入结束时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
-        endStr[strcspn(endStr, "\n")] = '\0';
+        if (strchr(endStr, '\n') == NULL) clearInputBuffer();
+        else endStr[strcspn(endStr, "\n")] = '\0';
+
         start = parse_time(startStr);
         end = parse_time(endStr);
         double turnover = getTotalTurnover(start, end);
         char buf[256];
         sprintf(buf, "\n时间段 %s 至 %s 的总营业额为: %.2f 元\n", startStr, endStr, turnover);
         printf("%s", buf);
-        // 输出到文件
         exportStatisticsToFile("statistics.txt", buf);
         break;
     }
-    case 3:  // 统计月营业额
-    {
+    case 3: {
         int year;
-        printf("请输入年份 (如 2026): ");
-        scanf("%d", &year);
-        getchar();
+        if (!safeGetInt("请输入年份 (如 2026): ", &year, 2000, 2100)) {
+            year = 2026;
+        }
         double monthly[12];
         if (getMonthlyTurnover(year, monthly)) {
             char buf[1024] = { 0 };
@@ -513,21 +463,17 @@ void statistics() {
         }
         break;
     }
-    case 4:  // 现金流统计
-    {
+    case 4: {
         printf("请输入起始时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(startStr, sizeof(startStr), stdin);
-        if (strchr(startStr, '\n') == NULL) {
-            int c;
-            while ((c = getchar()) != '\n' && c != EOF);
-        }
-        else {
-            startStr[strcspn(startStr, "\n")] = '\0';
-        }
-        startStr[strcspn(startStr, "\n")] = '\0';
+        if (strchr(startStr, '\n') == NULL) clearInputBuffer();
+        else startStr[strcspn(startStr, "\n")] = '\0';
+
         printf("请输入结束时间(格式: YYYY-MM-DD HH:MM:SS): ");
         fgets(endStr, sizeof(endStr), stdin);
-        endStr[strcspn(endStr, "\n")] = '\0';
+        if (strchr(endStr, '\n') == NULL) clearInputBuffer();
+        else endStr[strcspn(endStr, "\n")] = '\0';
+
         start = parse_time(startStr);
         end = parse_time(endStr);
         double recharge, refund;
@@ -556,10 +502,10 @@ void restoreCardMenu() {
     char password[9] = { 0 };
     printf("请输入卡号: ");
     scanf("%18s", cardName);
-    getchar();
+    clearInputBuffer();
     printf("请输入密码: ");
     scanf("%8s", password);
-    getchar();
+    clearInputBuffer();
     if (restoreCard(cardName, password)) {
         printf("卡号 %s 恢复成功！\n", cardName);
     }
@@ -568,8 +514,7 @@ void restoreCardMenu() {
     }
 }
 
-void freespace()
-{
+void freespace() {
     freeCard();
     releaseBillingList();
 }
@@ -586,8 +531,9 @@ void adminManagementMenu() {
         printf("4. 查看所有管理员\n");
         printf("0. 返回上级菜单\n");
         printf("请选择: ");
-        scanf("%d", &choice);
-        getchar();
+        if (!safeGetInt("", &choice, 0, 4)) {
+            choice = 0;
+        }
 
         switch (choice) {
         case 1: {
@@ -595,11 +541,14 @@ void adminManagementMenu() {
             int role;
             printf("请输入用户名: ");
             scanf("%31s", username);
+            clearInputBuffer();
             printf("请输入密码: ");
             scanf("%31s", password);
-            printf("选择角色 (0-超级管理员, 1-普通管理员): ");
-            scanf("%d", &role);
-            getchar();
+            clearInputBuffer();
+            if (!safeGetInt("选择角色 (0-超级管理员, 1-普通管理员): ", &role, 0, 1)) {
+                printf("角色无效，取消添加。\n");
+                break;
+            }
             if (addAdmin(username, password, role)) {
                 printf("添加成功！\n");
             }
@@ -612,6 +561,7 @@ void adminManagementMenu() {
             char username[32];
             printf("请输入要删除的管理员用户名: ");
             scanf("%31s", username);
+            clearInputBuffer();
             if (deleteAdmin(username)) {
                 printf("删除成功！\n");
             }
@@ -625,9 +575,11 @@ void adminManagementMenu() {
             int newRole;
             printf("请输入要修改权限的管理员用户名: ");
             scanf("%31s", username);
-            printf("新角色 (0-超级管理员, 1-普通管理员): ");
-            scanf("%d", &newRole);
-            getchar();
+            clearInputBuffer();
+            if (!safeGetInt("新角色 (0-超级管理员, 1-普通管理员): ", &newRole, 0, 1)) {
+                printf("角色无效，取消修改。\n");
+                break;
+            }
             if (modifyAdminRole(username, newRole)) {
                 printf("修改成功！\n");
             }
